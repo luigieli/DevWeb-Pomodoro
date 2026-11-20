@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Regras de Alto Contraste (WCAG AAA - Taxa de contraste >= 7:1) */
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast section,
+html.high-contrast aside,
+html.high-contrast div[role="dialog"] > div,
+html.high-contrast div[role="alertdialog"] > div {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.high-contrast button {
+  border: 2px solid #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html.high-contrast button:hover {
+  background-color: #27272a !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast button[aria-pressed="true"] {
+  background-color: #facc15 !important;
+  color: #000000 !important;
+  border-color: #facc15 !important;
+}
+
+html.high-contrast input,
+html.high-contrast select {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+html.high-contrast *:focus-visible {
+  outline: 3px solid #facc15 !important;
+  outline-offset: 3px !important;
+}
+
+html.high-contrast .text-slate-500,
+html.high-contrast .text-slate-600,
+html.high-contrast .text-slate-700,
+html.high-contrast .text-slate-800,
+html.high-contrast .text-slate-900,
+html.high-contrast .dark\:text-slate-400,
+html.high-contrast .dark\:text-slate-300,
+html.high-contrast .dark\:text-slate-200,
+html.high-contrast .dark\:text-slate-100 {
+  color: #ffffff !important;
+}
+
+html.high-contrast [role="timer"] {
+  color: #facc15 !important;
+}
+

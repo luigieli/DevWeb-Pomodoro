@@ -133,4 +133,18 @@ describe("FormularioTarefa (RN-12, VR-06 a VR-08)", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onCancelar).toHaveBeenCalled();
   });
+
+  it("deve focar o primeiro campo (título) automaticamente na abertura", async () => {
+    render(
+      <FormularioTarefa
+        aberto={true}
+        onSalvar={vi.fn()}
+        onCancelar={vi.fn()}
+      />
+    );
+
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const inputTitulo = screen.getByLabelText(/Título da tarefa/i);
+    expect(document.activeElement).toBe(inputTitulo);
+  });
 });

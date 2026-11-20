@@ -38,7 +38,10 @@ describe("TemporizadorView", () => {
       />
     );
     expect(screen.getByRole("button", { name: /Iniciar Sessão/i })).toBeInTheDocument();
-    expect(screen.getByText("25:00")).toBeInTheDocument();
+    const displayTimer = screen.getByRole("timer");
+    expect(displayTimer).toBeInTheDocument();
+    expect(displayTimer).toHaveTextContent("25:00");
+    expect(displayTimer).toHaveClass("font-mono", "tabular-nums");
   });
 
   it("deve exibir contagem regressiva, fase e ciclo quando em execucao", () => {

@@ -155,4 +155,18 @@ describe("FormularioPreset", () => {
     expect(screen.getByText("Nome do preset deve ter entre 1 e 40 caracteres.")).toBeInTheDocument();
     expect(screen.getByText("Tempo de foco deve ser um inteiro entre 1 e 120 minutos.")).toBeInTheDocument();
   });
+
+  it("deve focar o primeiro campo (nome) automaticamente na abertura", async () => {
+    render(
+      <FormularioPreset
+        aberto={true}
+        onSalvar={vi.fn()}
+        onCancelar={vi.fn()}
+      />
+    );
+
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const inputNome = screen.getByLabelText(/Nome do temporizador/i);
+    expect(document.activeElement).toBe(inputNome);
+  });
 });

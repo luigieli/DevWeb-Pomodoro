@@ -34,6 +34,9 @@ import { RepositorioSessaoAtiva } from "./sessao_foco/persistencia/RepositorioSe
 import { maquinaSessaoFoco } from "./sessao_foco/maquina/maquinaSessaoFoco";
 import { TemporizadorView } from "./sessao_foco/ui/TemporizadorView";
 import { SessaoAtivaDto } from "./sessao_foco/dominio/SessaoAtiva";
+import { SunIcon, MoonIcon, EyeIcon, XMarkIcon } from "@heroicons/react/24/outline";
+
+export type TipoTema = "light" | "dark" | "high-contrast";
 
 export const App: React.FC = () => {
   const armazenamento = useMemo(() => new ArmazenamentoLocal(), []);
@@ -74,6 +77,35 @@ export const App: React.FC = () => {
 
   // Sessão Retomada (RF-12, RF-13, UC10, UC11)
   const [sessaoFoiRetomada, setSessaoFoiRetomada] = useState(false);
+
+  // Tema (Claro, Escuro e Alto Contraste)
+  const [tema, setTema] = useState<TipoTema>(() => {
+    const temaSalvo = localStorage.getItem("tema_preferido") as TipoTema | null;
+    if (temaSalvo === "light" || temaSalvo === "dark" || temaSalvo === "high-contrast") {
+      return temaSalvo;
+    }
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      if (window.matchMedia("(prefers-contrast: more)").matches) {
+        return "high-contrast";
+      }
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
+      }
+    }
+    return "light";
+  });
+
+  useEffect(() => {
+    const raiz = document.documentElement;
+    raiz.classList.remove("dark", "high-contrast");
+
+    if (tema === "dark") {
+      raiz.classList.add("dark");
+    } else if (tema === "high-contrast") {
+      raiz.classList.add("high-contrast", "dark");
+    }
+    localStorage.setItem("tema_preferido", tema);
+  }, [tema]);
 
   // Erro de Persistência (RNF-06)
   const [erroPersistencia, setErroPersistencia] = useState<string | null>(null);
@@ -319,13 +351,68 @@ export const App: React.FC = () => {
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl p-4 sm:p-6 lg:p-8">
-      <header className="mb-8 border-b border-slate-200 pb-4">
-        <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-          Temporizador de Foco (Pomodoro)
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Aplicação de gestão de ciclos de estudo com persistência local e painel de tarefas.
-        </p>
+      <header className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+            Temporizador de Foco (Pomodoro)
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Aplicação de gestão de ciclos de estudo com persistência local e painel de tarefas.
+          </p>
+        </div>
+        <div
+          role="group"
+          aria-label="Preferências de tema e acessibilidade visual"
+          className="flex items-center gap-1 rounded-xl border border-slate-300 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800"
+        >
+          <button
+            type="button"
+            onClick={() => setTema("light")}
+            aria-pressed={tema === "light"}
+            aria-label="Ativar modo claro"
+            title="Ativar modo claro"
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+              tema === "light"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <SunIcon className="h-4 w-4" aria-hidden="true" />
+            <span>Claro</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTema("dark")}
+            aria-pressed={tema === "dark"}
+            aria-label="Ativar modo escuro"
+            title="Ativar modo escuro"
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+              tema === "dark"
+                ? "bg-slate-700 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <MoonIcon className="h-4 w-4" aria-hidden="true" />
+            <span>Escuro</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTema("high-contrast")}
+            aria-pressed={tema === "high-contrast"}
+            aria-label="Ativar modo alto contraste"
+            title="Ativar modo alto contraste (WCAG AAA)"
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+              tema === "high-contrast"
+                ? "bg-yellow-400 text-black shadow-sm font-bold"
+                : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            }`}
+          >
+            <EyeIcon className="h-4 w-4" aria-hidden="true" />
+            <span>Alto Contraste</span>
+          </button>
+        </div>
       </header>
 
       {erroPersistencia && (
@@ -337,10 +424,11 @@ export const App: React.FC = () => {
           <button
             type="button"
             aria-label="Fechar alerta de erro de persistência"
+            title="Fechar alerta"
             onClick={() => setErroPersistencia(null)}
-            className="ml-4 font-bold text-rose-700 hover:text-rose-950"
+            className="ml-4 rounded p-1 font-bold text-rose-700 hover:text-rose-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
           >
-            ✕
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}
